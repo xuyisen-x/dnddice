@@ -347,9 +347,21 @@
         </div>
         <div class="center-container">
             <a class="waves-effect waves-light btn"
-               style="background: rgba(176,190,197,0.3);width:400px;border-radius: 15px;margin-bottom: 10px;"
+               style="background: rgb(223,223,223);width:400px;border-radius: 15px;margin-bottom: 10px;"
                onclick="addDamageItem()">
                 <img src="icon/plus-square.svg" alt="ADD">
+            </a>
+            <a class="waves-effect waves-light btn"
+               style="background: rgb(3,221,255);width:100px;border-radius: 15px;margin-bottom: 10px;margin-left: 10px"
+               onclick="saveDamageItems()">
+                <img src="icon/save.svg" alt="SAVE">
+                保存
+            </a>
+            <a class="waves-effect waves-light btn"
+               style="background: rgb(255,132,0);width:100px;border-radius: 15px;margin-bottom: 10px;margin-left: 10px;"
+               onclick="loadDamageItems()">
+                <img src="icon/file-earmark.svg" alt="READ" style="align-items: center">
+                加载
             </a>
         </div>
         <div class="center-container">
@@ -362,13 +374,11 @@
             <div id="result-damage" class="result-textbox" >0</div>
         </div>
         <div class="center-container">
-            <div class="scrollable-box" id="result-detail">
-            </div>
+            <div class="scrollable-box" id="result-detail"></div>
         </div>
     </div>
 </div>
 
-<script type="text/javascript" color="0,0,255" opacity='0.7' zIndex="-2" count="99" src="js/canvas-nest.js"></script>
-
+<script type="text/javascript" src="js/canvas-nest.js"></script>
 </body>
 </html>

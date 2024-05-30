@@ -56,3 +56,13 @@ function updateDamageType(event){
     }
     damageResistanceItem.value = "1";
 }
+
+function saveDamageItems(){
+}
+
+async function loadDamageItems(){
+    // 打开文件选择器并从结果中解构出第一个句柄
+    const [fileHandle] = await window.showOpenFilePicker();
+    const file = await fileHandle.getFile();
+    return file;
+}
