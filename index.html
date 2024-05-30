@@ -50,6 +50,41 @@
                 else
                     document.getElementById("hint-text").style.color = "#9e9e9e";
             });
+
+            document.getElementById('fileInput').addEventListener('change', async () => {
+                const fileInput = document.getElementById("fileInput");
+                const file = fileInput.files[0];
+                if (!file) return;
+                if (file.type !== "application/json" && !file.name.endsWith(".json")) return;
+
+                const attackItems = document.getElementById("damage-items");
+                // clear damage items
+                while (attackItems.firstChild) {
+                    attackItems.removeChild(attackItems.firstChild);
+                }
+
+                const content = await readFileAsync(file);
+                const parseResult = JSON.parse(content);
+
+                const template = document.getElementById("damage-item-tmp");
+
+                for (let i of Object.values(parseResult)){
+                    let clone = template.content.cloneNode(true);
+                    clone.querySelector(".dice-enable").checked = i.checked;
+                    clone.querySelector(".damage-type-selector").value = i.type;
+                    clone.querySelector(".damage-resistance").value = i.resistance;
+                    clone.querySelector(".dice-str").value = i.dice;
+                    clone.querySelector(".dice-note").value = i.note;
+                    attackItems.appendChild(clone);
+                    let target = attackItems.lastElementChild;
+                    target.querySelector(".btn").addEventListener("click",
+                        (evt) => {removeDamageItem(evt);});
+                    target.querySelector(".damage-resistance").addEventListener("change",
+                        (evt) => {updateDamageResistance(evt);});
+                    target.querySelector(".damage-type-selector").addEventListener("change",
+                        (evt) => {updateDamageType(evt);})
+                }
+            });
         });
     </script>
     <script type="text/javascript" src="js/dice.js"></script>
@@ -379,6 +414,8 @@
     </div>
 </div>
 
-<script type="text/javascript" src="js/canvas-nest.js"></script>
+<input type="file" id="fileInput" style="display: none;" accept=".json,application/json"/>
+
+<!--<script type="text/javascript" src="js/canvas-nest.js"></script>-->
 </body>
 </html>

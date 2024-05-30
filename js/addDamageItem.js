@@ -58,11 +58,48 @@ function updateDamageType(event){
 }
 
 function saveDamageItems(){
+    const damageItems = document.getElementById("damage-items");
+    const jsonData = {};
+    let count = 0;
+    for (let i of damageItems.querySelectorAll(".damage-item")){
+        let checked = i.querySelector(".dice-enable").checked;
+        let damageType = i.querySelector(".damage-type-selector").value;
+        let damageResistance = i.querySelector(".damage-resistance").value;
+        let damageDice = i.querySelector(".dice-str").value;
+        let damageNote = i.querySelector(".dice-note").value;
+        count += 1;
+        let keyStr = "damage" + count.toString();
+        jsonData[keyStr] = {
+            "type": damageType,
+            "resistance": damageResistance,
+            "dice": damageDice,
+            "note": damageNote,
+            "checked": checked
+        };
+    }
+
+    const jsonBlob = new Blob([JSON.stringify(jsonData, null, 2)], { type: "application/json" });
+    const downloadElem = document.createElement("a");
+    const url = URL.createObjectURL(jsonBlob);
+    document.body.appendChild(downloadElem);
+    downloadElem.href = url;
+    downloadElem.download = "data.json";
+    downloadElem.click();
+    downloadElem.remove();
+    window.URL.revokeObjectURL(url);
 }
 
-async function loadDamageItems(){
-    // 打开文件选择器并从结果中解构出第一个句柄
-    const [fileHandle] = await window.showOpenFilePicker();
-    const file = await fileHandle.getFile();
-    return file;
+function readFileAsync(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(reader.error);
+        reader.readAsText(file);
+    });
+}
+
+async function loadDamageItems() {
+    const fileInput = document.getElementById("fileInput");
+    fileInput.value = "";
+    fileInput.click();
 }
