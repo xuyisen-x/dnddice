@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns="http://www.w3.org/1999/html">
+<head>
+    <title>DND骰子助手</title>
+    <meta charset="utf-8">
+    <!--Import Google Icon Font-->
+<!--    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">-->
+    <!--Import materialize.css-->
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--JavaScript at end of body for optimized loading-->
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // var elems = document.querySelectorAll('select');
+            // var instances = M.FormSelect.init(elems, options);
+
+            document.getElementById('inputStr').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    getDiceResult('inputStr','result');
+                }
+            });
+
+            document.getElementById('inputAttack').addEventListener('keydown', function(event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    getDiceResult3('inputAttack','result-attack');
+                }
+            });
+
+            const advantageCheckbox = document.getElementById('advantage');
+            const disadvantageCheckbox = document.getElementById('disadvantage');
+            document.getElementById('advantage').addEventListener('change', function() {
+                if (advantageCheckbox.checked) {
+                    disadvantageCheckbox.checked = false;
+                }
+            });
+            disadvantageCheckbox.addEventListener('change', function() {
+                if (disadvantageCheckbox.checked) {
+                    advantageCheckbox.checked = false;
+                }
+            });
+
+            const hintCheckbox = document.getElementById('hint-checked');
+            hintCheckbox.addEventListener('change', function() {
+                if (hintCheckbox.checked)
+                    document.getElementById("hint-text").style.color = "red";
+                else
+                    document.getElementById("hint-text").style.color = "#9e9e9e";
+            });
+        });
+    </script>
+    <script src="js/dice.js"></script>
+    <script src="js/addDamageItem.js"></script>
+    <style>
+        h1 {text-align: center; font-size: xxx-large}
+        h2 {text-align: center; font-size: xx-large}
+        .scrollable-box {
+            border: 2px solid #2bbbad; /* 边框颜色 */
+            padding: 20px;
+            border-radius: 15px; /* 圆角半径 */
+            width: 300px; /* 固定宽度 */
+            overflow: auto; /* 自动出现滚动条 */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+            background-color: #f9f9f9; /* 背景颜色 */
+            transition: border-color 0.3s, box-shadow 0.3s; /* 过渡效果 */
+            margin: 20px;
+            text-align: left;
+            white-space: pre;
+        }
+        .result-textbox {
+            width: 100px;
+            height: 100px;
+            padding: 10px;
+            border: 2px solid #2bbbad; /* 边框颜色 */
+            border-radius: 15px; /* 圆角半径 */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+            font-size: 48px; /* 字体大小 */
+            color: #333; /* 文本颜色 */
+            background-color: #f9f9f9; /* 背景颜色 */
+            transition: border-color 0.3s, box-shadow 0.3s; /* 过渡效果 */
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            user-select: none;
+        }
+        .damage-item {
+            width: 700px;
+            height: 50px;
+            padding: 10px;
+            border: 2px solid #2bbbad; /* 边框颜色 */
+            border-radius: 15px; /* 圆角半径 */
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1); /* 阴影效果 */
+            font-size: 48px; /* 字体大小 */
+            color: #333; /* 文本颜色 */
+            background-color: #f9f9f9; /* 背景颜色 */
+            transition: border-color 0.3s, box-shadow 0.3s; /* 过渡效果 */
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .center-container {
+            display: flex;
+            justify-content: center; /* 水平居中 */
+            align-items: center;
+        }
+        .item {
+            padding: 20px;
+        }
+        .highlight {
+            animation: fade 1s forwards; /* 定义两个动画 */
+        }
+        @keyframes fade {
+            0% {
+                color: red; /* 开始颜色 */
+            }
+            100% {
+                color: black; /* 最终颜色 */
+            }
+        }
+        .damage-type-selector{}
+        .damage-resistance{}
+        .dice-str{}
+        .dice-note{}
+        .dice-enable{}
+    </style>
+</head>
+<body>
+
+<template id="damage-item-tmp">
+    <div class="center-container">
+        <div class="damage-item">
+            <label>
+                <input class="text-dnd-input dice-str" type="text" name="input-attack" inputmode="text"
+                       placeholder="输入投点值（例：1d10+4）" style="text-align: center;font-size: medium"
+                       spellcheck="false"/>
+            </label>
+            <label>
+                <select class="browser-default damage-type-selector" style="font-size: medium;margin: 5px;text-align: center;width: 100px" >
+                    <option value="挥砍">挥砍</option>
+                    <option value="钝击">钝击</option>
+                    <option value="穿刺">穿刺</option>
+                    <option value="光耀">光耀</option>
+                    <option value="暗蚀">暗蚀</option>
+                    <option value="火焰">火焰</option>
+                    <option value="寒冷">寒冷</option>
+                    <option value="雷鸣">雷鸣</option>
+                    <option value="闪电">闪电</option>
+                    <option value="酸蚀">酸蚀</option>
+                    <option value="毒素">毒素</option>
+                    <option value="力场">力场</option>
+                    <option value="心灵">心灵</option>
+                </select>
+            </label>
+            <label>
+                <select class="browser-default damage-resistance" style="font-size: medium;margin: 5px;text-align: center;width: 100px" >
+                    <option value="1">正常</option>
+                    <option value="0">免疫</option>
+                    <option value="0.5">抗性</option>
+                    <option value="2">易伤</option>
+                </select>
+            </label>
+            <label>
+                <input class="text-dnd-input dice-note" type="text" name="input-attack" inputmode="text"
+                       placeholder="备注" style="text-align: center;font-size: medium;width: 150px"
+                       spellcheck="false"/>
+            </label>
+            <label>
+                <input class="dice-enable" type="checkbox" checked="checked"/>
+                <span></span>
+            </label>
+            <a class="waves-effect waves-light btn"
+               style="background: rgba(255,98,98,0.3); display: flex;justify-content: center;align-items: center">
+                <img src="icon/x-circle.svg" alt="close">
+            </a>
+        </div>
+    </div>
+</template>
+
+<h1>DND骰子助手</h1>
+
+<h2>快速投点</h2>
+<div class="center-container">
+    <div class="item">
+        <div class="center-container">
+            <div id="resultd4" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div style="text-align: center;font-size: x-large">d4</div>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult2('resultd4')">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="center-container">
+            <div id="resultd6" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div style="text-align: center;font-size: x-large">d6</div>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult2('resultd6')">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="center-container">
+            <div id="resultd8" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div style="text-align: center;font-size: x-large">d8</div>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult2('resultd8')">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="center-container">
+            <div id="resultd10" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div style="text-align: center;font-size: x-large">d10</div>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult2('resultd10')">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="center-container">
+            <div id="resultd12" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div style="text-align: center;font-size: x-large">d12</div>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult2('resultd12')">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="center-container">
+            <div id="resultd20" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div style="text-align: center;font-size: x-large">d20</div>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult2('resultd20')">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="center-container">
+            <div id="resultd100" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div style="text-align: center;font-size: x-large">d100</div>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult2('resultd100')">ROLL</a>
+        </div>
+    </div>
+</div>
+
+<div class="center-container">
+    <div class="item">
+        <h2>文本投点</h2>
+        <div class="center-container">
+            <div id="result" class="result-textbox" title="0" style="pointer-events: auto" >0</div>
+        </div>
+        <div class="center-container">
+            <label for="inputStr"></label>
+            <input class="text-dnd-input" type="text" id="inputStr" name="inputStr" inputmode="text"
+                   placeholder="输入投点值（例：1d20+4）" style="height: 50px;width: 300px;text-align: center;font-size: x-large"
+                   spellcheck="false"/>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               onclick="getDiceResult('inputStr','result')">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <h2>攻击投点</h2>
+        <div class="center-container">
+            <div>
+                <div class="center-container">
+                    <div id="result-attack" class="result-textbox" title="0" style="pointer-events: auto" >0</div>
+                </div>
+                <div class="center-container">
+                    <label for="inputAttack"></label>
+                    <input class="text-dnd-input" type="text" id="inputAttack" name="inputAttack" inputmode="text"
+                           placeholder="输入加值（例：1d4-5）" style="height: 50px;width: 300px;text-align: center;font-size: x-large"
+                           spellcheck="false"/>
+                </div>
+                <div class="center-container">
+                    <a class="waves-effect waves-light btn"
+                       onclick="getDiceResult3('inputAttack','result-attack')">ROLL</a>
+                </div>
+            </div>
+            <div style="display: flex;justify-content: center;align-items: center">
+                <div>
+                    <label>
+                        <input type="checkbox" id="advantage"/>
+                        <span style="font-size: x-large">优势</span>
+                    </label>
+                    <br>
+                    <label>
+                        <input type="checkbox" id="disadvantage"/>
+                        <span style="font-size: x-large">劣势</span>
+                    </label>
+                    <br>
+                    <label>
+                        <input type="checkbox" id="roll3"/>
+                        <span style="font-size: x-large">精灵之准</span>
+                    </label>
+                    <br>
+                    <label>
+                        <input type="checkbox" id="hint19">
+                        <span style="font-size: x-large">19暴击</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h2>伤害投点</h2>
+<div class="center-container">
+    <div class="item">
+        <div class="center-container">
+            <label style="margin-bottom: 10px">
+                <input id="hint-checked" type="checkbox"/>
+                <span style="font-size: x-large" id="hint-text">暴击</span>
+            </label>
+        </div>
+        <div id="damage-items">
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn"
+               style="background: rgba(176,190,197,0.3);width:400px;border-radius: 15px;margin-bottom: 10px;"
+               onclick="addDamageItem()">
+                <img src="icon/plus-square.svg" alt="ADD">
+            </a>
+        </div>
+        <div class="center-container">
+            <a class="waves-effect waves-light btn" style="margin-bottom: 10px"
+               onclick="getDiceResult4()">ROLL</a>
+        </div>
+    </div>
+    <div class="item">
+        <div class="center-container">
+            <div id="result-damage" class="result-textbox" >0</div>
+        </div>
+        <div class="center-container">
+            <div class="scrollable-box" id="result-detail">
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
